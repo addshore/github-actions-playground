@@ -21,10 +21,12 @@ jobs:
       - run: docker-compose up -d
       - run: docker ps -a
       - run: sleep 5
-      - run: docker-compose logs
       
       # https://github.com/nginx-proxy/nginx-proxy/issues/226#issuecomment-135179216
-      - run: docker-compose exec proxy nginx -t
+      - continue-on-error: true
+        run: docker-compose exec proxy nginx -t
+        
+      - run: docker-compose logs
       
       # seemingly requests make it to the demo
       
