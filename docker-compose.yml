@@ -2,6 +2,15 @@ version: '2.2'
 
 services:
 
+  dps:
+    image: defreitas/dns-proxy-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    hostname: dps.localhost
+    networks:
+      dps:
+        ipv4_address: 172.0.0.10
+
   demo:
     image: nginxdemos/hello:plain-text
     hostname: demo.localhost
