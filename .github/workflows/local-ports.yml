@@ -8,13 +8,28 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  docker-run:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
       
       - run: docker run -p 8080:80 -d nginxdemos/hello:plain-text
+      
+      - run: docker ps -a
+      
+      - continue-on-error: true
+        run: "curl -s http://localhost:8080"
+      - continue-on-error: true
+        run: "curl -s http://127.0.0.1:8080"
+
+  docker-compose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - run: docker-composer up -d
       
       - run: docker ps -a
       
