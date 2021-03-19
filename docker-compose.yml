@@ -18,7 +18,7 @@ services:
       - 8080:80
     networks:
       dps:
-        ipv4_address: 172.0.0.10
+        ipv4_address: 172.0.0.11
 
 networks:
   dps:
