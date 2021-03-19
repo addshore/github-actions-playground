@@ -8,17 +8,57 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  docker-compose:
     runs-on: ubuntu-latest
 
     steps:
+      # This is a hack to work around https://github.com/jwilder/docker-gen/issues/315.
+      # Support ticket is open with Github to make sure that this is okay.
+      - name: Update Docker cgroup and restart service
+        run: |
+          sudo rm /etc/docker/daemon.json
+          sudo service docker restart
+    
       - uses: actions/checkout@v2
       
-      - run: docker run -p 8080:80 -d nginxdemos/hello:plain-text
+      # hosts file works just fine
+      - run: sudo echo "127.0.0.1 demo.localhost" | sudo tee -a /etc/hosts
+      - run: sudo echo "127.0.0.1 some.demo.localhost" | sudo tee -a /etc/hosts
       
+      - run: docker-compose up -d
       - run: docker ps -a
+      - run: sleep 5
+      
+      # https://github.com/nginx-proxy/nginx-proxy/issues/226#issuecomment-135179216
+      - continue-on-error: true
+        run: docker-compose exec proxy nginx -t
+
+      # try and cat the config that is generated..
+      - continue-on-error: true
+        run: docker-compose exec proxy cat /etc/nginx/conf.d/default.conf
+        
+      - run: docker-compose logs
+      
+      # seemingly requests make it to the demo
+      
+      - continue-on-error: true
+        run: "curl -s http://localhost:9090"
+      - continue-on-error: true
+        run: "curl -s http://127.0.0.1:9090"
+      - continue-on-error: true
+        run: "curl -s http://demo.localhost:9090"
+      - continue-on-error: true
+        run: "curl -s http://some.demo.localhost:9090"
+      
+      # but no via the proxy?
       
       - continue-on-error: true
         run: "curl -s http://localhost:8080"
       - continue-on-error: true
         run: "curl -s http://127.0.0.1:8080"
+      - continue-on-error: true
+        run: "curl -s http://demo.localhost:8080"
+      - continue-on-error: true
+        run: "curl -s http://some.demo.localhost:8080"
+
+      - run: docker-compose logs
