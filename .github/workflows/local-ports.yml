@@ -38,13 +38,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Setup hosts file *
-        run: sudo echo "127.0.0.1 otherhost" | sudo tee -a /etc/hosts
-      - name: Setup hosts file *.localhost
-        run: sudo echo "127.0.0.1 otherhost.localhost" | sudo tee -a /etc/hosts
+      # hosts file works just fine
+      - run: sudo echo "127.0.0.1 demo.localhost" | sudo tee -a /etc/hosts
+      - run: sudo echo "127.0.0.1 some.demo.localhost" | sudo tee -a /etc/hosts
       
       - run: docker-compose up -d
       - run: docker ps -a
+      
+      # seemingly requests make it to the proxy but not past the proxy?
       
       - continue-on-error: true
         run: "curl -s http://localhost:8080"
@@ -52,6 +53,8 @@ jobs:
         run: "curl -s http://127.0.0.1:8080"
         
       - continue-on-error: true
-        run: "curl -s http://otherhost:8080"
+        run: "curl -s http://demo.localhost:8080"
       - continue-on-error: true
-        run: "curl -s http://otherhost.localhost:8080"
+        run: "curl -s http://some.demo.localhost:8080"
+
+      - run: docker-compose logs
