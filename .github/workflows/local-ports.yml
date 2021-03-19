@@ -8,30 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker-run:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Setup hosts file *
-        run: sudo echo "127.0.0.1 otherhost" | sudo tee -a /etc/hosts
-      - name: Setup hosts file *.localhost
-        run: sudo echo "127.0.0.1 otherhost.localhost" | sudo tee -a /etc/hosts
-      
-      - run: docker run -p 8080:8080 -d -v /var/run/docker.sock:/tmp/docker.sock:ro silvanwmde/nginx-proxy:latest
-      - run: docker ps -a
-      
-      - continue-on-error: true
-        run: "curl -s http://localhost:8080"
-      - continue-on-error: true
-        run: "curl -s http://127.0.0.1:8080"
-        
-      - continue-on-error: true
-        run: "curl -s http://otherhost:8080"
-      - continue-on-error: true
-        run: "curl -s http://otherhost.localhost:8080"
-
   docker-compose:
     runs-on: ubuntu-latest
 
@@ -46,6 +22,9 @@ jobs:
       - run: docker ps -a
       - run: sleep 5
       - run: docker-compose logs
+      
+      # https://github.com/nginx-proxy/nginx-proxy/issues/226#issuecomment-135179216
+      - run: docker-compose exec proxy nginx -t
       
       # seemingly requests make it to the demo
       
