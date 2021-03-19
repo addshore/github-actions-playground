@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - run: docker run -P -d nginxdemos/hello:plain-text
+      
+      - run: docker ps -a
+      
+      - continue-on-error: true
+        run: "curl -s http://localhost:8080"
+      - continue-on-error: true
+        run: "curl -s http://127.0.0.1:8080"
