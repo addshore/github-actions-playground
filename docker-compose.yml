@@ -1,0 +1,18 @@
+version: '2.2'
+
+services:
+
+  demo:
+    image: nginxdemos/hello:plain-text
+    hostname: demo.localhost
+    ports:
+      - 8080:80
+    networks:
+      dps:
+        ipv4_address: 172.0.0.10
+
+networks:
+  dps:
+    ipam:
+      config:
+        - subnet: 172.0.0.0/24
