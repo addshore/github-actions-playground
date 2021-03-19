@@ -25,6 +25,10 @@ jobs:
       # https://github.com/nginx-proxy/nginx-proxy/issues/226#issuecomment-135179216
       - continue-on-error: true
         run: docker-compose exec proxy nginx -t
+
+      # try and cat the config that is generated..
+      - continue-on-error: true
+        run: docker-compose exec proxy cat /etc/nginx/conf.d/default.conf
         
       - run: docker-compose logs
       
