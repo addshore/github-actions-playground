@@ -11,14 +11,32 @@ services:
       dps:
         ipv4_address: 172.0.0.10
 
-  demo:
-    image: nginxdemos/hello:plain-text
-    hostname: demo.localhost
+  proxy:
+    image: silvanwmde/nginx-proxy:latest
+    hostname: proxy.localhost
+    environment:
+      - VIRTUAL_HOST=proxy.localhost
+      - HOSTNAMES=.demo.localhost      # wildcard name resolution, thanks to DPS
     ports:
-      - 8080:80
+      - 8080:8080
+    depends_on:
+      - dps
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       dps:
         ipv4_address: 172.0.0.11
+
+  demo:
+    image: nginxdemos/hello:plain-text
+    hostname: demo.localhost
+    depends_on:
+      - proxy
+    environment:
+      - VIRTUAL_HOST=*.demo.localhost
+      - VIRTUAL_PORT=80
+    networks:
+      - dps
 
 networks:
   dps:
