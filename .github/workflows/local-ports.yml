@@ -47,13 +47,23 @@ jobs:
       - run: sleep 5
       - run: docker-compose logs
       
-      # seemingly requests make it to the proxy but not past the proxy?
+      # seemingly requests make it to the demo
+      
+      - continue-on-error: true
+        run: "curl -s http://localhost:9090"
+      - continue-on-error: true
+        run: "curl -s http://127.0.0.1:9090"
+      - continue-on-error: true
+        run: "curl -s http://demo.localhost:9090"
+      - continue-on-error: true
+        run: "curl -s http://some.demo.localhost:9090"
+      
+      # but no via the proxy?
       
       - continue-on-error: true
         run: "curl -s http://localhost:8080"
       - continue-on-error: true
         run: "curl -s http://127.0.0.1:8080"
-        
       - continue-on-error: true
         run: "curl -s http://demo.localhost:8080"
       - continue-on-error: true
